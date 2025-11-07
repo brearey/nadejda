@@ -2,18 +2,20 @@
   <div class="container">
     <div class="header">
       <button v-on:click="setPrevMonth">Previous month</button>
-      <span>{{ monthsNames[currentLang as keyof typeof monthsNames][currentMonthIndex] }} {{ currentYear }}</span>
+      <span>{{ monthsNames[currentLang][currentMonthIndex] }} {{ currentYear }}</span>
       <button v-on:click="setNextMonth">Next month</button>
-      <br>
+      <br />
       <button v-on:click="swapLanguage">Swap language</button>
     </div>
     <div class="grid">
       <div class="week-days">
-        <div v-for="weekDay in weekDaysNames[currentLang as keyof typeof weekDaysNames]" :key="weekDay">{{ weekDay }}</div>
+        <div class="week-day-name" v-for="weekDay in weekDaysNames[currentLang]" :key="weekDay">
+          {{ weekDay }}
+        </div>
       </div>
       <div class="month-days">
-        <div v-for="(monthDay, idx) in monthDaysNumbers" :key="idx">
-          {{ monthDay }}
+        <div v-for="(day, idx) in calendarDays" :key="idx">
+          {{ day }}
         </div>
       </div>
     </div>
@@ -21,64 +23,31 @@
 </template>
 
 <script lang="ts">
+import {
+  LANG_ENG,
+  LANG_RUS,
+  MONTHS_NAMES_ENG,
+  MONTHS_NAMES_RUS,
+  WEEK_DAYS_ENG,
+  WEEK_DAYS_RUS,
+} from '@/utils/constants'
+
 export default {
   data() {
     const currentDate = new Date()
     return {
-      currentLang: 'english',
+      currentLang: 'english' as 'english' | 'russian',
       currentMonthIndex: currentDate.getMonth(),
       currentYear: currentDate.getFullYear(),
       weekDaysNames: {
-        english: [
-          'Monday',
-          'Tuesday',
-          'Wednesday',
-          'Thursday',
-          'Friday',
-          'Saturday',
-          'Sunday',
-        ],
-        russian: [
-          'Понедельник',
-          'Вторник',
-          'Среда',
-          'Четверг',
-          'Пятница',
-          'Суббота',
-          'Воскресенье',
-        ]
+        english: WEEK_DAYS_ENG,
+        russian: WEEK_DAYS_RUS,
       },
       monthsNames: {
-        english: [
-          'January',
-          'February',
-          'March',
-          'April',
-          'May',
-          'June',
-          'July',
-          'August',
-          'September',
-          'October',
-          'November',
-          'December',
-        ],
-        russian: [
-          'Январь',
-          'Февраль',
-          'Март',
-          'Апрель',
-          'Май',
-          'Июнь',
-          'Июль',
-          'Август',
-          'Сентябрь',
-          'Октябрь',
-          'Ноябрь',
-          'Декабрь',
-        ],
+        english: MONTHS_NAMES_ENG,
+        russian: MONTHS_NAMES_RUS,
       },
-      monthDaysNumbers: [] as number[],
+      calendarDays: [] as number[],
     }
   },
   methods: {
@@ -101,19 +70,25 @@ export default {
       this.generateCalendar()
     },
     swapLanguage() {
-      if (this.currentLang === 'english') {
-        this.currentLang = 'russian'
-      } else {
-        this.currentLang = 'english'
-      }
+      this.currentLang = this.currentLang === LANG_ENG ? LANG_RUS : LANG_ENG
     },
     generateCalendar() {
       const daysInMonth = new Date(this.currentYear, this.currentMonthIndex + 1, 0).getDate()
-      this.monthDaysNumbers = Array.from({ length: daysInMonth }, (_, i) => i + 1)
+      const firstDayOfMonth = new Date(this.currentYear, this.currentMonthIndex, 1).getDay()
+      const startDay = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1
+      const daysInPrevMonth = new Date(this.currentYear, this.currentMonthIndex, 0).getDate()
+      const days: number[] = []
+
+      for (let i = startDay - 1; i >= 0; i--) {
+        days.push(daysInPrevMonth - i)
+      }
+
+      for (let i = 1; i <= daysInMonth; i++) {
+        days.push(i)
+      }
+
+      this.calendarDays = days
     },
-    getDaysInMonth(year: number, month: number): number {
-      return new Date(year, month + 1, 0).getDate()
-    }
   },
   mounted() {
     this.generateCalendar()
@@ -124,7 +99,34 @@ export default {
     },
     currentYear() {
       this.generateCalendar()
-    }
-  }
+    },
+  },
 }
 </script>
+
+<style scoped>
+.week-day-name {
+  text-align: center;
+}
+
+.month-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.week-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.month-days div {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid purple;
+  border-radius: 4px;
+}
+</style>
