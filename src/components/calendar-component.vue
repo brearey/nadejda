@@ -1,13 +1,15 @@
 <template>
   <div class="container">
     <div class="header">
-      <button>Previous month</button>
-      <span>{{ monthsNames.english[currentMonthIndex] }} {{ currentYear }}</span>
-      <button>Next month</button>
+      <button v-on:click="setPrevMonth">Previous month</button>
+      <span>{{ monthsNames[currentLang as keyof typeof monthsNames][currentMonthIndex] }} {{ currentYear }}</span>
+      <button v-on:click="setNextMonth">Next month</button>
+      <br>
+      <button v-on:click="swapLanguage">Swap language</button>
     </div>
     <div class="grid">
       <div class="week-days">
-        <div v-for="weekDay in weekDaysNames.english" :key="weekDay">{{ weekDay }}</div>
+        <div v-for="weekDay in weekDaysNames[currentLang as keyof typeof weekDaysNames]" :key="weekDay">{{ weekDay }}</div>
       </div>
       <div class="month-days">
         <div v-for="(monthDay, idx) in monthDaysNumbers" :key="idx">
@@ -23,6 +25,7 @@ export default {
   data() {
     const currentDate = new Date()
     return {
+      currentLang: 'english',
       currentMonthIndex: currentDate.getMonth(),
       currentYear: currentDate.getFullYear(),
       weekDaysNames: {
@@ -81,6 +84,28 @@ export default {
       ],
     }
   },
-  methods: {},
+  methods: {
+    setNextMonth() {
+      if (this.currentMonthIndex === 11) {
+        this.currentMonthIndex = 0
+        return
+      }
+      this.currentMonthIndex++
+    },
+    setPrevMonth() {
+      if (this.currentMonthIndex === 0) {
+        this.currentMonthIndex = 11
+        return
+      }
+      this.currentMonthIndex--
+    },
+    swapLanguage() {
+      if (this.currentLang === 'english') {
+        this.currentLang = 'russian'
+      } else {
+        this.currentLang = 'english'
+      }
+    }
+  },
 }
 </script>
