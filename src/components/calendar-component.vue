@@ -78,26 +78,27 @@ export default {
           'Декабрь',
         ],
       },
-      monthDaysNumbers: [
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
-        26, 27, 28, 29, 30,
-      ],
+      monthDaysNumbers: [] as number[],
     }
   },
   methods: {
     setNextMonth() {
       if (this.currentMonthIndex === 11) {
         this.currentMonthIndex = 0
-        return
+        this.currentYear++
+      } else {
+        this.currentMonthIndex++
       }
-      this.currentMonthIndex++
+      this.generateCalendar()
     },
     setPrevMonth() {
       if (this.currentMonthIndex === 0) {
         this.currentMonthIndex = 11
-        return
+        this.currentYear--
+      } else {
+        this.currentMonthIndex--
       }
-      this.currentMonthIndex--
+      this.generateCalendar()
     },
     swapLanguage() {
       if (this.currentLang === 'english') {
@@ -105,7 +106,25 @@ export default {
       } else {
         this.currentLang = 'english'
       }
+    },
+    generateCalendar() {
+      const daysInMonth = new Date(this.currentYear, this.currentMonthIndex + 1, 0).getDate()
+      this.monthDaysNumbers = Array.from({ length: daysInMonth }, (_, i) => i + 1)
+    },
+    getDaysInMonth(year: number, month: number): number {
+      return new Date(year, month + 1, 0).getDate()
     }
   },
+  mounted() {
+    this.generateCalendar()
+  },
+  watch: {
+    currentMonthIndex() {
+      this.generateCalendar()
+    },
+    currentYear() {
+      this.generateCalendar()
+    }
+  }
 }
 </script>
