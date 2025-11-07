@@ -7,7 +7,7 @@
     </div>
     <div class="grid">
       <div class="week-days">
-        <div v-for="weekDay in weekDays" :key="weekDay">{{weekDay}}</div>
+        <div v-for="weekDay in weekDays" :key="weekDay">{{ weekDay }}</div>
       </div>
       <div class="month-days">
         <div v-for="(monthDay, idx) in monthDays" :key="idx">
